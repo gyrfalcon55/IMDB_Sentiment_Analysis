@@ -1,0 +1,19 @@
+data_dir:
+  raw_data: "data/raw_data/movie.csv"
+  train_data: "data/processed/train_data/train.csv"
+  test_data: "data/processed/test_data/test.csv"
+  train_data_dir: "data/processed/train_data/"
+  test_data_dir: "data/processed/test_data/"
+
+artifacts:
+  artifacts_dir: "artifacts/"
+  model_dir: "artifacts/models/"
+  model: "artifacts/models/best_model.pkl"
+  vectorizer: "artifacts/vectorizers/count_vectorizer.pkl"
+  vectorizer_dir: "artifacts/vectorizers/"
+
+
+model_config_path: "src/IMDB_Project/config/model_configuration.yml"
+
+saved_model_path: "artifacts/models/best_model.pkl"
+saved_vectorizer_path: "artifacts/vectorizers/count_vectorizer.pkl"

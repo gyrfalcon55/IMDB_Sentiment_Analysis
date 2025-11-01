@@ -1,0 +1,4 @@
+[core]
+    remote = origin
+['remote "origin"']
+    url = https://dagshub.com/gyrfalcon55/IMDB_Sentiment_Analysis.dvc

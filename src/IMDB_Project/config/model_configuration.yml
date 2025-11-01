@@ -1,0 +1,26 @@
+models:
+  NaiveBayes:
+    class: sklearn.naive_bayes.MultinomialNB
+    params:
+      alpha: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+  LogisticRegression:
+    class: sklearn.linear_model.LogisticRegression
+    params:
+      C: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+      penalty: ["l2"]
+      solver: ["lbfgs", "liblinear"]
+      max_iter: [1000]
+
+  SVM:
+    class: sklearn.svm.LinearSVC
+    params:
+      C: [0.01, 0.1, 1.0, 10.0]
+
+  RandomForest:
+    class: sklearn.ensemble.RandomForestClassifier
+    params:
+      n_estimators: [50, 100]
+      max_depth: [null, 10, 20]
+      min_samples_split: [2, 5, 10]
+      min_samples_leaf: [1, 2, 4]

@@ -1,0 +1,9 @@
+nltk
+pandas
+numpy
+gensim
+scikit-learn
+matplotlib
+seaborn
+yml
+-e .

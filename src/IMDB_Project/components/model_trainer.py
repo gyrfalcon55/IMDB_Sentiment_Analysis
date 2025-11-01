@@ -1,0 +1,107 @@
+from IMDB_Project.logger import log
+from IMDB_Project.components.data_ingestion import DataIngestion
+from IMDB_Project.utils.common import read_yml,print_data,read_csv
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import accuracy_score,classification_report
+import numpy as np
+import joblib
+import importlib
+import os
+
+class Preparing_Data:
+    def __init__(self):
+        self.ingestion = DataIngestion()
+        log.info("Train and Test Data loaded")
+        self.train_df = read_csv(self.ingestion.var['data_dir']['train_data'])
+        self.test_df = read_csv(self.ingestion.var['data_dir']['test_data'])
+
+    def splitting(self):
+        self.x_train = self.train_df[['text']]
+        self.y_train = self.train_df['label']
+
+
+        self.x_test = self.test_df[['text']]
+        self.y_test = self.test_df['label']
+
+    def text_to_vectors(self):
+        self.counter = CountVectorizer(max_features=10000, stop_words='english')  # optional limit
+        self.x_train_counter = self.counter.fit_transform(self.x_train['text'])
+        self.x_test_counter = self.counter.transform(self.x_test['text'])
+
+class ModelTraining(Preparing_Data):
+
+    def __init__(self):
+        super().__init__()
+        model_config_path = self.ingestion.var['model_config_path']
+        self.model_config = read_yml(model_config_path)
+        self.model_config = self.model_config['models']
+
+
+    def get_class_from_string(self,class_path):
+        module_name, class_name = class_path.rsplit('.', 1)
+        module = importlib.import_module(module_name)
+        return getattr(module, class_name)
+
+    def Hyperparameter_Tuning(self) -> dict:
+        
+        log.info("Hyperparameter Tuning Started")
+        self.models_params = {}
+        for model_name, model_info in self.model_config.items():
+            ModelClass = self.get_class_from_string(model_info["class"])
+            self.models_params[model_name] = {
+                "model": ModelClass(),
+                "params": model_info["params"]
+            }
+        
+
+        self.best_overall_score = 0.0
+        self.best_models = {}
+        for model_name, mp in self.models_params.items():
+            log.info(f"----- Running RandomizedSearchCV for {model_name} ----------")
+            random_search = RandomizedSearchCV(
+                estimator=mp['model'],
+                param_distributions=mp['params'],
+                n_iter=5,           # number of random combinations to try
+                scoring='accuracy',
+                cv=3,
+                verbose=2,
+                random_state=42,
+                n_jobs=-1
+            )
+            random_search.fit(self.x_train_counter, self.y_train)
+            y_pred = random_search.best_estimator_.predict(self.x_test_counter)
+            test_acc = accuracy_score(self.y_test, y_pred)
+
+            log.info(f"Best params for {model_name}: {random_search.best_params_}")
+            log.info(f"Best CV score: {random_search.best_score_:.4f}")
+            log.info(f"Test Accuracy ({model_name}): {test_acc:.4f}")
+            log.info(f"\n{classification_report(self.y_test, y_pred)}")
+
+            self.best_models[model_name] = random_search.best_estimator_
+
+            if test_acc > self.best_overall_score:
+                self.best_overall_score = test_acc
+                self.best_model = random_search.best_estimator_
+                self.best_model_name = model_name
+
+        log.info("Hyperparameter tuning Completed")
+        os.makedirs(self.ingestion.var['artifacts']['model_dir'],exist_ok=True)
+        os.makedirs(self.ingestion.var['artifacts']['vectorizer_dir'],exist_ok=True)
+
+        log.info("Saving model and vectorizer to the files inside artifacts foler")
+        joblib.dump(self.best_model, self.ingestion.var['artifacts']['model'])
+        joblib.dump(self.counter, self.ingestion.var['artifacts']['vectorizer'])
+        log.info(f"Best Model: {self.best_model_name} saved with Accuracy: {self.best_overall_score:.4f}")
+
+
+
+
+# if __name__ == '__main__':
+#     param_tuner = ModelTraining()
+#     param_tuner.splitting()
+#     param_tuner.text_to_vectors()
+#     param_tuner.Hyperparameter_Tuning()
+#     print(param_tuner.best_models)
