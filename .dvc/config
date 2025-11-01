@@ -2,3 +2,6 @@
     remote = origin
 ['remote "origin"']
     url = https://dagshub.com/gyrfalcon55/IMDB_Sentiment_Analysis.dvc
+    auth = basic
+    user = gyrfalcon55
+    password = d0cb4b48763be8158dded1248e66df64e15c9e3a

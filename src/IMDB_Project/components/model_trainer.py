@@ -11,6 +11,16 @@ import joblib
 import importlib
 import os
 
+import mlflow
+import dagshub
+
+dagshub.init(repo_owner='gyrfalcon55', repo_name='IMDB_Sentiment_Analysis', mlflow=True)
+mlflow.set_tracking_uri("https://dagshub.com/gyrfalcon55/IMDB_Sentiment_Analysis.mlflow")
+mlflow.set_experiment("IMDB_Sentiment_Analysis")
+
+
+
+
 class Preparing_Data:
     def __init__(self):
         self.ingestion = DataIngestion()
@@ -46,7 +56,6 @@ class ModelTraining(Preparing_Data):
         return getattr(module, class_name)
 
     def Hyperparameter_Tuning(self) -> dict:
-        
         log.info("Hyperparameter Tuning Started")
         self.models_params = {}
         for model_name, model_info in self.model_config.items():
@@ -55,46 +64,58 @@ class ModelTraining(Preparing_Data):
                 "model": ModelClass(),
                 "params": model_info["params"]
             }
-        
 
         self.best_overall_score = 0.0
         self.best_models = {}
+
         for model_name, mp in self.models_params.items():
             log.info(f"----- Running RandomizedSearchCV for {model_name} ----------")
-            random_search = RandomizedSearchCV(
-                estimator=mp['model'],
-                param_distributions=mp['params'],
-                n_iter=5,           # number of random combinations to try
-                scoring='accuracy',
-                cv=3,
-                verbose=2,
-                random_state=42,
-                n_jobs=-1
-            )
-            random_search.fit(self.x_train_counter, self.y_train)
-            y_pred = random_search.best_estimator_.predict(self.x_test_counter)
-            test_acc = accuracy_score(self.y_test, y_pred)
 
-            log.info(f"Best params for {model_name}: {random_search.best_params_}")
-            log.info(f"Best CV score: {random_search.best_score_:.4f}")
-            log.info(f"Test Accuracy ({model_name}): {test_acc:.4f}")
-            log.info(f"\n{classification_report(self.y_test, y_pred)}")
+            with mlflow.start_run(run_name=f"{model_name}_Experiment"):
+                random_search = RandomizedSearchCV(
+                    estimator=mp['model'],
+                    param_distributions=mp['params'],
+                    n_iter=5,
+                    scoring='accuracy',
+                    cv=3,
+                    verbose=2,
+                    random_state=42,
+                    n_jobs=-1
+                )
+                random_search.fit(self.x_train_counter, self.y_train)
+                y_pred = random_search.best_estimator_.predict(self.x_test_counter)
+                test_acc = accuracy_score(self.y_test, y_pred)
 
-            self.best_models[model_name] = random_search.best_estimator_
+                # Log parameters and metrics
+                mlflow.log_params(random_search.best_params_)
+                mlflow.log_metric("cv_score", random_search.best_score_)
+                mlflow.log_metric("test_accuracy", test_acc)
 
-            if test_acc > self.best_overall_score:
-                self.best_overall_score = test_acc
-                self.best_model = random_search.best_estimator_
-                self.best_model_name = model_name
+                # Log model
+                mlflow.sklearn.log_model(random_search.best_estimator_, artifact_path=model_name)
+
+                log.info(f"Best params for {model_name}: {random_search.best_params_}")
+                log.info(f"Best CV score: {random_search.best_score_:.4f}")
+                log.info(f"Test Accuracy ({model_name}): {test_acc:.4f}")
+                log.info(f"\n{classification_report(self.y_test, y_pred)}")
+
+                # Save best model logic
+                self.best_models[model_name] = random_search.best_estimator_
+                if test_acc > self.best_overall_score:
+                    self.best_overall_score = test_acc
+                    self.best_model = random_search.best_estimator_
+                    self.best_model_name = model_name
 
         log.info("Hyperparameter tuning Completed")
-        os.makedirs(self.ingestion.var['artifacts']['model_dir'],exist_ok=True)
-        os.makedirs(self.ingestion.var['artifacts']['vectorizer_dir'],exist_ok=True)
 
-        log.info("Saving model and vectorizer to the files inside artifacts foler")
+        os.makedirs(self.ingestion.var['artifacts']['model_dir'], exist_ok=True)
+        os.makedirs(self.ingestion.var['artifacts']['vectorizer_dir'], exist_ok=True)
+
+        log.info("Saving model and vectorizer to the files inside artifacts folder")
         joblib.dump(self.best_model, self.ingestion.var['artifacts']['model'])
         joblib.dump(self.counter, self.ingestion.var['artifacts']['vectorizer'])
         log.info(f"Best Model: {self.best_model_name} saved with Accuracy: {self.best_overall_score:.4f}")
+
 
 
 
