@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pkl
+*.log
+
+# Environment
+.env
+.venv/
+.vscode/
+
+# Data and generated artifacts
+data/processed/
+mlruns/
+logs/
+artifacts/
