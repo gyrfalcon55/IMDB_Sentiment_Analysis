@@ -90,9 +90,10 @@ class ModelTraining(Preparing_Data):
                 mlflow.log_params(random_search.best_params_)
                 mlflow.log_metric("cv_score", random_search.best_score_)
                 mlflow.log_metric("test_accuracy", test_acc)
-
-                # Log model
-                mlflow.sklearn.log_model(random_search.best_estimator_, artifact_path=model_name)
+                
+                joblib.dump(random_search.best_estimator_, f"{model_name}_temp_model.pkl")
+                mlflow.log_artifact(f"{model_name}_temp_model.pkl", artifact_path="models")
+                os.remove(f"{model_name}_temp_model.pkl")
 
                 log.info(f"Best params for {model_name}: {random_search.best_params_}")
                 log.info(f"Best CV score: {random_search.best_score_:.4f}")
