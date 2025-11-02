@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 
 from sklearn.model_selection import RandomizedSearchCV
-from sklearn.metrics import accuracy_score,classification_report
+from sklearn.metrics import accuracy_score,classification_report,roc_auc_score,f1_score
 import numpy as np
 import joblib
 import importlib
@@ -16,7 +16,7 @@ import dagshub
 
 dagshub.init(repo_owner='gyrfalcon55', repo_name='IMDB_Sentiment_Analysis', mlflow=True)
 mlflow.set_tracking_uri("https://dagshub.com/gyrfalcon55/IMDB_Sentiment_Analysis.mlflow")
-mlflow.set_experiment("IMDB_Sentiment_Analysis")
+mlflow.set_experiment("IMDB_Sentiment_Analysis_v1")
 
 
 
@@ -85,12 +85,20 @@ class ModelTraining(Preparing_Data):
                 random_search.fit(self.x_train_counter, self.y_train)
                 y_pred = random_search.best_estimator_.predict(self.x_test_counter)
                 test_acc = accuracy_score(self.y_test, y_pred)
+                f1_score_ = f1_score(self.y_test, y_pred)
+                roc_auc_score_ = roc_auc_score(self.y_test, y_pred)
 
                 # Log parameters and metrics
                 mlflow.log_params(random_search.best_params_)
                 mlflow.log_metric("cv_score", random_search.best_score_)
                 mlflow.log_metric("test_accuracy", test_acc)
+                mlflow.log_metric("f1-score",f1_score_)
+                mlflow.log_metric("roc_auc_score",roc_auc_score_)
                 
+                '''
+                You can view or download the logged model artifact from the 
+                MLflow UI under the "Artifacts" section of the run (path: models/)
+                '''
                 joblib.dump(random_search.best_estimator_, f"{model_name}_temp_model.pkl")
                 mlflow.log_artifact(f"{model_name}_temp_model.pkl", artifact_path="models")
                 os.remove(f"{model_name}_temp_model.pkl")
@@ -98,6 +106,8 @@ class ModelTraining(Preparing_Data):
                 log.info(f"Best params for {model_name}: {random_search.best_params_}")
                 log.info(f"Best CV score: {random_search.best_score_:.4f}")
                 log.info(f"Test Accuracy ({model_name}): {test_acc:.4f}")
+                log.info(f"f1-score ({model_name}): {f1_score_:.4f}")
+                log.info(f"roc_auc_score_ ({model_name}): {roc_auc_score_:.4f}")
                 log.info(f"\n{classification_report(self.y_test, y_pred)}")
 
                 # Save best model logic
@@ -106,6 +116,7 @@ class ModelTraining(Preparing_Data):
                     self.best_overall_score = test_acc
                     self.best_model = random_search.best_estimator_
                     self.best_model_name = model_name
+
 
         log.info("Hyperparameter tuning Completed")
 

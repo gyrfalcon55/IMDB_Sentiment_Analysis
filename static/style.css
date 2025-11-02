@@ -1,0 +1,225 @@
+/* --- General page setup --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+
+.result_text {
+    color: black;
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* --- Glassmorphism container --- */
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 2%;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    color: #ffffff;
+}
+
+.container h1 {
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+}
+
+/* --- Form --- */
+.form-box {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-box label {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+textarea {
+    resize: none;
+    padding: 20px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    backdrop-filter: blur(6px);
+    transition: all 0.3s ease;
+    height: 250px;
+    width: 100%;
+}
+
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+textarea:focus {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* --- Button --- */
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+    width: 100%;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+}
+
+/* --- Title Bar --- */
+
+/* --- Title Bar --- */
+.title-bar {
+    display: flex;
+    align-items: center;
+    /* vertically centers logo and text */
+    justify-content: center;
+    /* centers both horizontally */
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.logo {
+    width: 48px;
+    /* smaller logo size for balance */
+    height: 48px;
+    object-fit: contain;
+    /* keeps logo ratio */
+    display: flex;
+}
+
+.title-bar h1 {
+    font-size: 1.9rem;
+    color: #ffcc00;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255, 255, 0, 0.6);
+    margin: 0;
+    /* remove extra spacing */
+    line-height: 1;
+    /* vertically aligns text tightly */
+}
+
+/* Responsive title */
+@media (max-width: 768px) {
+    .title-bar h1 {
+        font-size: 1.5rem;
+    }
+
+    .logo {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+
+
+
+
+
+
+
+/* --- Background animation --- */
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* --- Responsive Design --- */
+
+/* For tablets (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        max-width: 80%;
+        padding: 4%;
+    }
+
+    textarea {
+        height: 220px;
+    }
+}
+
+/* For mobile screens (max-width: 768px) */
+@media (max-width: 768px) {
+    .container {
+        padding: 6%;
+        width: 95%;
+        max-width: 90%;
+    }
+
+    .container h1 {
+        font-size: 1.5rem;
+    }
+
+    textarea {
+        height: 200px;
+        font-size: 0.95rem;
+    }
+
+    button {
+        font-size: 0.95rem;
+        padding: 10px 15px;
+    }
+}
+
+/* For small phones (max-width: 480px) */
+@media (max-width: 480px) {
+    .container {
+        padding: 8%;
+        width: 95%;
+    }
+
+    .container h1 {
+        font-size: 1.3rem;
+    }
+
+    textarea {
+        height: 180px;
+        font-size: 0.9rem;
+    }
+
+    button {
+        font-size: 0.9rem;
+    }
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMDB Sentiment Analysis Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="title-bar">
+            <img src="/static/imdb_logo.png" alt="IMDb Logo" class="logo">
+            <h1>IMDB Sentiment Analysis</h1>
+        </div>
+        <form method="get" action="/train">
+            <button type="submit">Train Model</button>
+        </form>
+        <br>
+        <form action="/predict" method="post" class="form-box">
+            <label for="review">Enter Movie Review:</label>
+            <textarea id="review" name="review" placeholder="Write your review here..." rows="6" required></textarea>
+            <button type="submit">Predict Sentiment</button>
+        </form>
+
+        {% if result %}
+        <div class="result_text">
+            <h2>Prediction: {{ result }}</h2>
+        </div>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>

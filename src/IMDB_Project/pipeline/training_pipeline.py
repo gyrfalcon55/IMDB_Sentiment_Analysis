@@ -55,10 +55,9 @@ def training_pipeline():
         raise CustomeException(e,sys)
 
 if __name__=='__main__':
-    print(" --------- Trainging Pipeline Started Checks Logs ----------\n")
-    log.info("----- Training Pipeline Started -----")
-    training_pipeline()
-    print("\n--------- Trainging Pipeline Completed Checks Logs ----------\n")
+    print(" --------- Trainging Pipeline Started Check Logs ----------\n")
+    
+    print("\n--------- Trainging Pipeline Completed Check Logs ----------\n")
 
 
 
