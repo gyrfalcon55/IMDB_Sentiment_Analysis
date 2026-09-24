@@ -1,5 +1,8 @@
 # 🎬 IMDB Sentiment Analysis  
 
+<img width="1897" height="901" alt="image" src="https://github.com/user-attachments/assets/30c8ad90-32a5-4de0-881c-b37ef697a18a" />
+
+
 An **end-to-end machine learning pipeline** that classifies IMDB movie reviews as **Positive** or **Negative** using NLP preprocessing, vectorization, ML model training, MLflow experiment tracking, and deployment via a FastAPI web app.  
 
 ---
